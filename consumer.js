@@ -1,16 +1,17 @@
 const { Kafka } = require('kafkajs');
 const UserAccount = require('./models/userAcc.model.js');
+require('dotenv').config();
 
 
 
 const kafka = new Kafka({
-    clientId: process.env.KAFKA_CLIENT_ID || 'kafka-nodejs-example',
-    brokers: [process.env.KAFKA_BOOTSTRAP_SERVERS || 'pkc-6ojv2.us-west4.gcp.confluent.cloud:9092'],
+    clientId: process.env.KAFKA_CLIENT_ID,
+    brokers: [process.env.KAFKA_BOOTSTRAP_SERVERS],
     ssl: true,
     sasl: {
         mechanism: 'plain',
-        username: process.env.KAFKA_USERNAME || 'J4NQ7Y7ULVIYMYER',
-        password: process.env.KAFKA_PASSWORD || 'SeQhSpBCeo2R0pSK2ggv/yF/+OSYI7LEpnJ8Q9eHY937L9vistDUrIwXmvXO1YL7'
+        username: process.env.KAFKA_USERNAME,
+        password: process.env.KAFKA_PASSWORD
     }
 });
 const producer = kafka.producer();
@@ -18,10 +19,6 @@ const consumer = kafka.consumer({ groupId: 'onboarding-app-info' });
 
 
 const startKafka = async () => {
-
-
-
-
     await consumer.connect().then(() => {
         console.log("consumer connected to kafka")
     });

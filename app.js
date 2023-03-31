@@ -5,15 +5,21 @@ const { Kafka } = require('kafkajs');
 const { createWorker } = require('tesseract.js');
 const mongoose = require('mongoose');
 const startkafka = require('./consumer');
+require('dotenv').config();
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const port = process.env.PORT || 3000;
-const uri = 'mongodb+srv://sanskargupta0901:sanskar@kafka-test.us22hau.mongodb.net/?retryWrites=true&w=majority'
+const port = process.env.PORT;
+const uri = process.env.MONGO_URI
 
-mongoose.connect(uri, {});
+mongoose.connect(uri, {
+    useNewUrlParser: true,
+    useFindAndModify: false,
+    useUnifiedTopology: true,
+    useCreateIndex: true
+});
 
 mongoose.connection.once('open', () => {
     console.log("mongodb connected");
