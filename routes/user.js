@@ -1,6 +1,8 @@
 const router = require('express').Router();
 const multer = require('multer');
+const path = require('path');
 const fs = require('fs');
+// const path = require('path');
 const { Kafka } = require('kafkajs');
 const { createWorker } = require('tesseract.js');
 const producerfunc = require('../producer');
@@ -8,6 +10,22 @@ const { consumPerInfo, consumContInfo } = require('../consumer');
 const UserAccount = require('../models/userAcc.model.js');
 const { v4: uuidv4 } = require('uuid')
 require('dotenv').config();
+
+
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+        fileSize: 5 * 1024 * 1024 // 5 MB
+    },
+    fileFilter: (req, file, cb) => {
+        const ext = path.extname(file.originalname).toLowerCase();
+        if (ext !== '.jpg' && ext !== '.jpeg' && ext !== '.png') {
+            return cb(new Error('Only JPG, JPEG, and PNG images are allowed'));
+        }
+        cb(null, true);
+    }
+});
+
 
 const kafka = new Kafka({
     clientId: process.env.KAFKA_CLIENT_ID,
@@ -48,6 +66,30 @@ router.post('/personal-info', async (req, res) => {
             console.log("error in producer: ", err)
         })
 });
+
+router.post('/id-img/:id', upload.single('file'), async (req, res) => {
+    try {
+        const userId = req.params.id
+        const base64 = req.file.buffer.toString('base64');
+        // console.log(base64)
+
+        const payload = {
+            userId,
+            idImage: base64
+        };
+        const topic = 'onboarding-personal-info'
+        const messages = JSON.stringify({ step: 'id-image', payload })
+        producerfunc(topic, msg = messages).then(async () => {
+            res.status(200).json({ message: 'id card saved' })
+
+        })
+            .catch((err) => {
+                console.log("error in producer: ", err)
+            })
+    } catch (err) {
+        console.log(err)
+    }
+});
 router.post(`/contact-info/:id`, async (req, res) => {
     const userId = req.params.id;
     const { email, phone } = req.body;
@@ -67,17 +109,7 @@ router.post(`/contact-info/:id`, async (req, res) => {
         })
 });
 
-router.get('/message', async (res) => {
-    await consumer.connect()
-    await consumer.subscribe({ topic: 'onboarding-update' })
-    await consumer.run({
-        eachMessage: async ({ topic, partition, message }) => {
-            const payload = JSON.parse(message.value);
-            console.log("message called", payload)
-            res.json({ payload: payload })
-        }
-    })
-})
+
 
 
 module.exports = router;

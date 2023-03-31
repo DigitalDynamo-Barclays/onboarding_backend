@@ -1,5 +1,6 @@
 const { Kafka } = require('kafkajs');
 const UserAccount = require('./models/userAcc.model.js');
+const userFinacc = require('./models/userfin.modal.js')
 require('dotenv').config();
 
 
@@ -29,7 +30,7 @@ const startKafka = async () => {
     await consumer.run({
         eachMessage: async ({ topic, partition, message }) => {
             const payload = JSON.parse(message.value);
-            console.log(payload)
+            // console.log(payload)
 
             if (payload.step === 'personal-info') {
 
@@ -60,14 +61,48 @@ const startKafka = async () => {
                     ]
                 });
             }
+            else if (payload.step === 'id-image') {
+                const { idImage, userId } = payload.payload;
+                const userAccount = await UserAccount.findOne(
+                    { uid: userId }
+                );
+                userAccount.idImage = idImage;
+                await userAccount.save().then((res) => {
+                    console.log("id image saved")
+                })
+                    .catch((err) => {
+                        console.log(err)
+                    })
+
+
+            }
             else if (payload.step === 'contact-info') {
+                let user = ""
                 const { phone, email, userId } = payload.payload;
                 const userAccount = await UserAccount.findOne(
                     { uid: userId }
                 );
                 userAccount.phone = phone;
                 userAccount.email = email;
-                await userAccount.save();
+                await userAccount.save().then((res) => {
+                    console.log("res----", res)
+                    user = res
+                })
+                const data = {
+                    name: user.name,
+                    dob: user.dob,
+                    address: user.address,
+                    idImage: user.idImage,
+                    phone: user.phone,
+                    uid: user.uid,
+                    email: user.email,
+                    accountType: user.accountType,
+                    isVerified: user.isVerified
+
+                }
+                const finalAcc = new userFinacc(data)
+                finalAcc.save()
+
             }
 
             // else if (payload.step === 'id-image') {
