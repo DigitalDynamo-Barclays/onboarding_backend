@@ -5,7 +5,7 @@ const Address = {
     street: { type: String },
     city: { type: String },
     state: { type: String },
-    zip: { type: Number },
+    zip: { type: String },
     country: { type: String }
 }
 const userAccountSchema = new mongoose.Schema({
@@ -17,6 +17,7 @@ const userAccountSchema = new mongoose.Schema({
     phone: { type: String, required: true, default: '0000-0000-0000' },
     email: { type: String, required: true, default: '0000-0000-0000' },
     uid: { type: String, required: true },
+    accountType: { type: String, required: true },
     employment: {
         company: { type: String },
         address: { type: String },

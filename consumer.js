@@ -34,8 +34,8 @@ const startKafka = async () => {
             if (payload.step === 'personal-info') {
 
                 console.log(payload)
-                const { name, dob, address, uid } = payload.payload;
-                const userAccount = new UserAccount({ name, dob, address, uid });
+                const { name, dob, address, uid, accountType } = payload.payload;
+                const userAccount = new UserAccount({ name, dob, address, uid, accountType });
                 await userAccount.save().then((res) => {
                     console.log("user account saved", res._id)
 
@@ -49,11 +49,12 @@ const startKafka = async () => {
                         name,
                         dob,
                         address,
+                        accountType,
                         userId: userAccount._id
                     }
                 };
                 await producer.send({
-                    topic: 'onboarding-update',
+                    topic: 'admin-update',
                     messages: [
                         { value: JSON.stringify(adminPayload) }
                     ]

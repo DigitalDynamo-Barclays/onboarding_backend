@@ -28,12 +28,13 @@ producer.connect()
     .catch(err => console.log(`Error connecting to Confluent Cloud: ${err}`));
 
 router.post('/personal-info', async (req, res) => {
-    const { name, dob, address } = req.body;
+    const { name, dob, address, accountType } = req.body;
 
     const payload = {
         name,
         dob,
         address,
+        accountType,
         uid: uuidv4()
     };
 
