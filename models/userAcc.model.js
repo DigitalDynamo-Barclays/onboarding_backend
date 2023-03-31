@@ -10,7 +10,7 @@ const Address = {
 }
 const userAccountSchema = new mongoose.Schema({
     name: { type: String, required: true },
-    dob: { type: Date, required: true },
+    dob: { type: String, required: true },
     address: { type: Address, required: true },
     idImage: { type: String, required: true, default: '0000-0000-0000' },
     idVerified: { type: Boolean, default: false },
