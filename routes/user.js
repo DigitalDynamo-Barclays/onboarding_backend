@@ -4,8 +4,9 @@ const fs = require('fs');
 const { Kafka } = require('kafkajs');
 const { createWorker } = require('tesseract.js');
 const producerfunc = require('../producer');
-const startkafka = require('../consumer');
+const { consumPerInfo, consumContInfo } = require('../consumer');
 const UserAccount = require('../models/userAcc.model.js');
+const { v4: uuidv4 } = require('uuid')
 require('dotenv').config();
 
 const kafka = new Kafka({
@@ -20,7 +21,7 @@ const kafka = new Kafka({
 });
 
 
-
+const consumer = kafka.consumer({ groupId: 'onboarding-app-info' });
 const producer = kafka.producer();
 producer.connect()
     .then(() => console.log('Connected to Confluent Cloud'))
@@ -32,13 +33,15 @@ router.post('/personal-info', async (req, res) => {
     const payload = {
         name,
         dob,
-        address
+        address,
+        uid: uuidv4()
     };
 
     const topic = 'onboarding-personal-info'
     const messages = JSON.stringify({ step: 'personal-info', payload })
-    producerfunc(topic, msg = messages).then(() => {
-        res.status(200).json({ message: 'Personal info saved' })
+    producerfunc(topic, msg = messages).then(async () => {
+        res.status(200).json({ message: 'Personal info saved', uid: payload.uid })
+
     })
         .catch((err) => {
             console.log("error in producer: ", err)
@@ -54,13 +57,26 @@ router.post(`/contact-info/:id`, async (req, res) => {
     };
     const topic = 'onboarding-personal-info'
     const messages = JSON.stringify({ step: 'contact-info', payload })
-    producerfunc(topic, msg = messages).then(() => {
+    producerfunc(topic, msg = messages).then(async () => {
         res.status(200).json({ message: 'Contact info saved' })
+
     })
         .catch((err) => {
             console.log("error in producer: ", err)
         })
 });
+
+router.get('/message', async (res) => {
+    await consumer.connect()
+    await consumer.subscribe({ topic: 'onboarding-update' })
+    await consumer.run({
+        eachMessage: async ({ topic, partition, message }) => {
+            const payload = JSON.parse(message.value);
+            console.log("message called", payload)
+            res.json({ payload: payload })
+        }
+    })
+})
 
 
 module.exports = router;

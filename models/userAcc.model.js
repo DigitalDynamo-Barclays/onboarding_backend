@@ -16,6 +16,7 @@ const userAccountSchema = new mongoose.Schema({
     idVerified: { type: Boolean, default: false },
     phone: { type: String, required: true, default: '0000-0000-0000' },
     email: { type: String, required: true, default: '0000-0000-0000' },
+    uid: { type: String, required: true },
     employment: {
         company: { type: String },
         address: { type: String },

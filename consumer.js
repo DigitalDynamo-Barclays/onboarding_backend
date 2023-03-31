@@ -33,13 +33,9 @@ const startKafka = async () => {
 
             if (payload.step === 'personal-info') {
 
-                //code for updating admin and user dashboard with personal info
-
-
-                // Save personal info to MongoDB Atlas
                 console.log(payload)
-                const { name, dob, address } = payload.payload;
-                const userAccount = new UserAccount({ name, dob, address });
+                const { name, dob, address, uid } = payload.payload;
+                const userAccount = new UserAccount({ name, dob, address, uid });
                 await userAccount.save().then((res) => {
                     console.log("user account saved", res._id)
 
@@ -66,7 +62,7 @@ const startKafka = async () => {
             else if (payload.step === 'contact-info') {
                 const { phone, email, userId } = payload.payload;
                 const userAccount = await UserAccount.findOne(
-                    { _id: userId }
+                    { uid: userId }
                 );
                 userAccount.phone = phone;
                 userAccount.email = email;
