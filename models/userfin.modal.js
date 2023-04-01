@@ -18,6 +18,7 @@ const userfinSchema = new mongoose.Schema({
     email: { type: String, required: true, default: '0000-0000-0000' },
     uid: { type: String, required: true },
     accountType: { type: String, required: true },
+    accountNo: { type: "String", required: true, default: "0000-0000-0000" },
     employment: {
         company: { type: String },
         address: { type: String },

@@ -114,10 +114,24 @@ router.post(`/contact-info/:id`, async (req, res) => {
 
 router.post('/verify/:id', async (req, res) => {
     const userId = req.params.id;
+    const { country, phone } = req.body;
+    let accno = ""
     const finalAcc = await userFinacc.findOne({ uid: userId });
     finalAcc.idVerified = true;
+    if (country === 'India') {
+        accno = "15" + phone
+    }
+    else {
+        const iban1 = "GB"
+        const iban2 = "29"
+        const iban3 = "NWBK"
+        const iban4 = Math.random().toString().substr(2, 4)
+        const iban5 = "RA1234567"
+        accno = iban1 + iban2 + iban3.split("B")[1] + iban4 + iban5.split("2")[1]
+    }
+    finalAcc.accountNo = accno
     finalAcc.save().then(async () => {
-        res.status(200).json({ message: 'Id verified' })
+        res.status(200).json({ message: 'Id verified', accno: accno })
     })
         .catch((err) => {
             console.log("error in producer: ", err)
