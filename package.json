@@ -11,12 +11,15 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.17.1",
     "kafkajs": "^2.2.4",
     "mongoose": "^5.12.15",
     "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.8.0",
     "path": "^0.12.7",
+    "random-number": "^0.0.9",
     "sharp": "^0.32.0",
     "tesseract.js": "^4.0.2",
     "uuid": "^9.0.0"

@@ -1,5 +1,7 @@
 const router = require('express').Router();
 const multer = require('multer');
+var rn = require('random-number');
+let nodemailer = require('nodemailer')
 const path = require('path');
 const fs = require('fs');
 // const path = require('path');
@@ -8,6 +10,7 @@ const { createWorker } = require('tesseract.js');
 const producerfunc = require('../producer');
 const { consumPerInfo, consumContInfo } = require('../consumer');
 const UserAccount = require('../models/userAcc.model.js');
+const userFinacc = require('../models/userfin.modal.js');
 const { v4: uuidv4 } = require('uuid')
 require('dotenv').config();
 
@@ -109,7 +112,57 @@ router.post(`/contact-info/:id`, async (req, res) => {
         })
 });
 
+router.post('/verify/:id', async (req, res) => {
+    const userId = req.params.id;
+    const finalAcc = await userFinacc.findOne({ uid: userId });
+    finalAcc.idVerified = true;
+    finalAcc.save().then(async () => {
+        res.status(200).json({ message: 'Id verified' })
+    })
+        .catch((err) => {
+            console.log("error in producer: ", err)
+        })
+});
+router.post(`/send-otp/:id`, async (req, res) => {
+    const email = req.params.id;
+    var transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL,
+            pass: process.env.PASSWORD
+        }
+    });
+
+    var options = {
+        min: 187431,
+        max: 940498,
+        integer: true
+    }
+    var gen = rn(options);
+    var mailOptions = {
+        from: process.env.EMAIL,
+        to: email,
+        subject: 'Otp For Verification',
+        text: `Your otp: \n${gen}`
+    };
+    transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+            console.log(error);
+        } else {
+            console.log('Email sent: ' + gen);
+        }
+    });
+    res.json({ status: "user added", success: true, otp: gen })
+})
 
 
 
+router.get('/get-unvfUser', async (req, res) => {
+    const unvfUser = await userFinacc.find({ idVerified: false });
+    res.status(200).json(unvfUser);
+})
+router.get('/get-vfUser', async (req, res) => {
+    const unvfUser = await userFinacc.find({ idVerified: true });
+    res.status(200).json(unvfUser);
+})
 module.exports = router;

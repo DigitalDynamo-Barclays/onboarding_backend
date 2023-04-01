@@ -5,12 +5,15 @@ const { Kafka } = require('kafkajs');
 const { createWorker } = require('tesseract.js');
 const mongoose = require('mongoose');
 const startkafka = require('./consumer');
+const cors = require('cors');
 require('dotenv').config();
+
+
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(cors());
 const port = process.env.PORT;
 const uri = process.env.MONGO_URI
 
