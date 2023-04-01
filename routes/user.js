@@ -137,7 +137,7 @@ router.post('/verify/:id', async (req, res) => {
             console.log("error in producer: ", err)
         })
 });
-router.post(`/send-otp/:id`, async (req, res) => {
+router.get(`/send-otp/:id`, async (req, res) => {
     const email = req.params.id;
     var transporter = nodemailer.createTransport({
         service: 'gmail',
