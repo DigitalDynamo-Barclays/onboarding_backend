@@ -115,17 +115,18 @@ router.post(`/contact-info/:id`, async (req, res) => {
 router.post('/verify/:id', async (req, res) => {
     const userId = req.params.id;
     const { country, phone } = req.body;
+    console.log(country)
     let accno = ""
     const finalAcc = await userFinacc.findOne({ uid: userId });
     finalAcc.idVerified = true;
-    if (country === 'India') {
+    if (country == 'India') {
         accno = "15" + phone
     }
     else {
         const iban1 = "GB"
         const iban2 = "29"
         const iban3 = "NWBK"
-        const iban4 = Math.random().toString().substr(2, 4)
+        const iban4 = Math.random().toString().length(2, 4)
         const iban5 = "RA1234567"
         accno = iban1 + iban2 + iban3.split("B")[1] + iban4 + iban5.split("2")[1]
     }
@@ -179,4 +180,10 @@ router.get('/get-vfUser', async (req, res) => {
     const unvfUser = await userFinacc.find({ idVerified: true });
     res.status(200).json(unvfUser);
 })
+router.get('/user/:id', async (req, res) => {
+    const id = req.params.id;
+    const unvfUser = await userFinacc.find({ uid: id });
+    res.status(200).json(unvfUser);
+})
+
 module.exports = router;
