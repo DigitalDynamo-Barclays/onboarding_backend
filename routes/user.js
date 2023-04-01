@@ -126,7 +126,7 @@ router.post('/verify/:id', async (req, res) => {
         const iban1 = "GB"
         const iban2 = "29"
         const iban3 = "NWBK"
-        const iban4 = Math.random().toString().length(2, 4)
+        const iban4 = Math.random().toString().slice(2, 4)
         const iban5 = "RA1234567"
         accno = iban1 + iban2 + iban3.split("B")[1] + iban4 + iban5.split("2")[1]
     }
@@ -184,6 +184,30 @@ router.get('/user/:id', async (req, res) => {
     const id = req.params.id;
     const unvfUser = await userFinacc.find({ uid: id });
     res.status(200).json(unvfUser);
+})
+router.post('/feedback/:id', async (req, res) => {
+    var transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL,
+            pass: process.env.PASSWORD
+        }
+    });
+
+    var mailOptions = {
+        from: process.env.EMAIL,
+        to: email,
+        subject: 'Feedback',
+        text: feedback
+    };
+    transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+            console.log(error);
+        } else {
+            console.log('Email sent: ' + gen);
+        }
+    });
+    res.json({ status: "user added", success: true, otp: gen })
 })
 
 module.exports = router;
