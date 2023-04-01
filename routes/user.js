@@ -186,6 +186,8 @@ router.get('/user/:id', async (req, res) => {
     res.status(200).json(unvfUser);
 })
 router.post('/feedback/:id', async (req, res) => {
+    const email = req.params.id;
+    const { feedback } = req.body
     var transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -207,7 +209,7 @@ router.post('/feedback/:id', async (req, res) => {
             console.log('Email sent: ' + gen);
         }
     });
-    res.json({ status: "user added", success: true, otp: gen })
+    res.json({ status: "user added", success: true })
 })
 
 module.exports = router;
